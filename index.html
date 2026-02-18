@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>❤️ Kübra ❤️</title>
+<title>Kübra ❤️</title>
 
 <style>
 body{
@@ -75,38 +75,38 @@ h1{
 
 <body>
 
-<h1>Kübra Seni ÇOOOOK Seviyorum ❤️</h1>
+<h1>Kübra Seni Çok Çok Seviyorum ❤️</h1>
 <div class="area" id="area"></div>
 
 <script>
 const area = document.getElementById("area");
 let audioCtx;
 
-// Mobil için ilk etkileşimde audio başlat
 function initAudio(){
     if(!audioCtx){
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
 }
 
-function playPop(){
+// 💖 Tatlı "pling" sesi
+function playCuteSound(){
     if(!audioCtx) return;
 
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
-    osc.type = "triangle";
-    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.15);
+    osc.type = "sine"; // yumuşak ton
+    osc.frequency.setValueAtTime(880, audioCtx.currentTime); // yüksek tatlı frekans
+    osc.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.15);
 
-    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
 
     osc.connect(gain);
     gain.connect(audioCtx.destination);
 
     osc.start();
-    osc.stop(audioCtx.currentTime + 0.15);
+    osc.stop(audioCtx.currentTime + 0.3);
 }
 
 function randomColor(){
@@ -120,14 +120,14 @@ function createHeart(){
     heart.style.left=Math.random()*(window.innerWidth-80)+"px";
     heart.style.top=Math.random()*(window.innerHeight-150)+100+"px";
 
-    heart.addEventListener("click", (e)=>{ initAudio(); explode(heart); });
-    heart.addEventListener("touchstart", (e)=>{ initAudio(); explode(heart); });
+    heart.addEventListener("click", ()=>{ initAudio(); explode(heart); });
+    heart.addEventListener("touchstart", ()=>{ initAudio(); explode(heart); });
 
     area.appendChild(heart);
 }
 
 function explode(heart){
-    playPop();
+    playCuteSound();
 
     const rect = heart.getBoundingClientRect();
     const centerX = rect.left + rect.width/2;
