@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kübra ❤️</title>
+<title>❤️ Kübra ❤️</title>
 
 <style>
 body{
@@ -75,11 +75,39 @@ h1{
 
 <body>
 
-<h1>Kübra Sana Aşığım ❤️</h1>
+<h1>Kübra Seni ÇOOOOK Seviyorum ❤️</h1>
 <div class="area" id="area"></div>
 
 <script>
 const area = document.getElementById("area");
+let audioCtx;
+
+// Mobil için ilk etkileşimde audio başlat
+function initAudio(){
+    if(!audioCtx){
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
+
+function playPop(){
+    if(!audioCtx) return;
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.15);
+
+    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.15);
+}
 
 function randomColor(){
     return `hsl(${Math.random()*360}, 90%, 60%)`;
@@ -92,18 +120,19 @@ function createHeart(){
     heart.style.left=Math.random()*(window.innerWidth-80)+"px";
     heart.style.top=Math.random()*(window.innerHeight-150)+100+"px";
 
-    heart.addEventListener("click", ()=>explode(heart));
-    heart.addEventListener("touchstart", ()=>explode(heart));
+    heart.addEventListener("click", (e)=>{ initAudio(); explode(heart); });
+    heart.addEventListener("touchstart", (e)=>{ initAudio(); explode(heart); });
 
     area.appendChild(heart);
 }
 
 function explode(heart){
+    playPop();
+
     const rect = heart.getBoundingClientRect();
     const centerX = rect.left + rect.width/2;
     const centerY = rect.top + rect.height/2;
 
-    // parçacık efekti
     for(let i=0;i<15;i++){
         const p=document.createElement("div");
         p.className="particle";
@@ -130,10 +159,9 @@ function explode(heart){
     }
 
     heart.remove();
-    createHeart(); // yeni kalp doğar 😎
+    createHeart();
 }
 
-// başlangıç kalpleri
 for(let i=0;i<5;i++){
     createHeart();
 }
