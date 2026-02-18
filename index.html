@@ -6,110 +6,138 @@
 <title>Kübra ❤️</title>
 
 <style>
-    body{
-        margin:0;
-        height:100vh;
-        display:flex;
-        flex-direction:column;
-        justify-content:center;
-        align-items:center;
-        background: radial-gradient(circle at center, #1a1a2e, #0f0c29);
-        font-family: Arial, sans-serif;
-        overflow:hidden;
-    }
+body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    background: radial-gradient(circle at center, #1a1a2e, #0f0c29);
+    font-family: Arial, sans-serif;
+    overflow:hidden;
+    touch-action: manipulation;
+}
 
-    h1{
-        position:absolute;
-        top:60px;
-        font-size:34px;
-        color:#ff2e63;
-        text-align:center;
-        animation: neonPulse 2s infinite ease-in-out;
-        text-shadow:
-            0 0 5px #ff2e63,
-            0 0 10px #ff2e63,
-            0 0 20px #ff2e63,
-            0 0 40px #ff2e63,
-            0 0 80px #ff2e63;
-    }
+h1{
+    position:absolute;
+    top:50px;
+    font-size:32px;
+    color:#ff2e63;
+    text-shadow:
+        0 0 5px #ff2e63,
+        0 0 15px #ff2e63,
+        0 0 30px #ff2e63;
+}
 
-    .container{
-        display:flex;
-        gap:50px;
-        align-items:center;
-    }
+.area{
+    position:relative;
+    width:100%;
+    height:100%;
+}
 
-    .heart{
-        position:relative;
-        width:90px;
-        height:90px;
-        background:#ff2e63;
-        transform: rotate(-45deg);
-        animation: pulse 1.5s infinite ease-in-out;
-        box-shadow: 0 0 25px #ff2e63;
-    }
+.heart{
+    position:absolute;
+    width:70px;
+    height:70px;
+    transform: rotate(-45deg);
+    cursor:pointer;
+    animation: pulse 1.4s infinite ease-in-out;
+}
 
-    .heart::before,
-    .heart::after{
-        content:"";
-        position:absolute;
-        width:90px;
-        height:90px;
-        background:inherit;
-        border-radius:50%;
-    }
+.heart::before,
+.heart::after{
+    content:"";
+    position:absolute;
+    width:70px;
+    height:70px;
+    background:inherit;
+    border-radius:50%;
+}
 
-    .heart::before{
-        top:-45px;
-        left:0;
-    }
+.heart::before{ top:-35px; left:0; }
+.heart::after{ left:35px; top:0; }
 
-    .heart::after{
-        left:45px;
-        top:0;
-    }
+@keyframes pulse{
+    0%,100%{ transform: rotate(-45deg) scale(1); }
+    50%{ transform: rotate(-45deg) scale(1.2); }
+}
 
-    .heart:nth-child(2){
-        background:#ff00c8;
-        box-shadow: 0 0 25px #ff00c8;
-        animation-duration:1.2s;
-    }
-
-    .heart:nth-child(3){
-        background:#00f5ff;
-        box-shadow: 0 0 25px #00f5ff;
-        animation-duration:1.8s;
-    }
-
-    @keyframes pulse{
-        0%,100%{
-            transform: rotate(-45deg) scale(1);
-        }
-        50%{
-            transform: rotate(-45deg) scale(1.2);
-        }
-    }
-
-    @keyframes neonPulse{
-        0%,100%{
-            opacity:1;
-        }
-        50%{
-            opacity:0.7;
-        }
-    }
+.particle{
+    position:absolute;
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    pointer-events:none;
+}
 </style>
 </head>
 
 <body>
 
-<h1>Kübra Seni Seviyorum ❤️</h1>
+<h1>Kübra Sana Aşığım ❤️</h1>
+<div class="area" id="area"></div>
 
-<div class="container">
-    <div class="heart"></div>
-    <div class="heart"></div>
-    <div class="heart"></div>
-</div>
+<script>
+const area = document.getElementById("area");
+
+function randomColor(){
+    return `hsl(${Math.random()*360}, 90%, 60%)`;
+}
+
+function createHeart(){
+    const heart = document.createElement("div");
+    heart.className="heart";
+    heart.style.background=randomColor();
+    heart.style.left=Math.random()*(window.innerWidth-80)+"px";
+    heart.style.top=Math.random()*(window.innerHeight-150)+100+"px";
+
+    heart.addEventListener("click", ()=>explode(heart));
+    heart.addEventListener("touchstart", ()=>explode(heart));
+
+    area.appendChild(heart);
+}
+
+function explode(heart){
+    const rect = heart.getBoundingClientRect();
+    const centerX = rect.left + rect.width/2;
+    const centerY = rect.top + rect.height/2;
+
+    // parçacık efekti
+    for(let i=0;i<15;i++){
+        const p=document.createElement("div");
+        p.className="particle";
+        p.style.background=randomColor();
+        p.style.left=centerX+"px";
+        p.style.top=centerY+"px";
+        area.appendChild(p);
+
+        const angle=Math.random()*2*Math.PI;
+        const distance=60+Math.random()*40;
+
+        const x=Math.cos(angle)*distance;
+        const y=Math.sin(angle)*distance;
+
+        p.animate([
+            { transform:"translate(0,0)", opacity:1 },
+            { transform:`translate(${x}px,${y}px)`, opacity:0 }
+        ],{
+            duration:600,
+            easing:"ease-out"
+        });
+
+        setTimeout(()=>p.remove(),600);
+    }
+
+    heart.remove();
+    createHeart(); // yeni kalp doğar 😎
+}
+
+// başlangıç kalpleri
+for(let i=0;i<5;i++){
+    createHeart();
+}
+</script>
 
 </body>
 </html>
