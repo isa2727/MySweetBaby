@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kübra ❤️</title>
+<title>❤️ Kübra ❤️</title>
 
 <style>
 body{
@@ -21,13 +21,10 @@ body{
 
 h1{
     position:absolute;
-    top:50px;
-    font-size:32px;
+    top:40px;
+    font-size:30px;
     color:#ff2e63;
-    text-shadow:
-        0 0 5px #ff2e63,
-        0 0 15px #ff2e63,
-        0 0 30px #ff2e63;
+    text-shadow:0 0 10px #ff2e63,0 0 20px #ff2e63;
 }
 
 .area{
@@ -70,17 +67,47 @@ h1{
     border-radius:50%;
     pointer-events:none;
 }
+
+.final-message{
+    position:absolute;
+    bottom:60px;
+    font-size:24px;
+    color:white;
+    text-align:center;
+    opacity:0;
+    transition:opacity 1s;
+    text-shadow:0 0 10px #fff,0 0 20px #ff2e63;
+}
 </style>
 </head>
 
 <body>
 
-<h1>Kübra Seni Çok Çok Seviyorum ❤️</h1>
+<h1> ❤️ Seni Çokkkk Seviyorummmm  ❤️</h1>
 <div class="area" id="area"></div>
+<div class="final-message" id="finalMsg">
+ ❤️ Kalbimdesin ❤️
+</div>
 
 <script>
 const area = document.getElementById("area");
+const finalMsg = document.getElementById("finalMsg");
 let audioCtx;
+let score = 0;
+
+const notes = {
+    red: 523.25,     // C
+    pink: 659.25,    // E
+    purple: 783.99,  // G
+    blue: 880        // A
+};
+
+const colors = [
+    {name:"red", value:"#ff2e63"},
+    {name:"pink", value:"#ff00c8"},
+    {name:"purple", value:"#8338ec"},
+    {name:"blue", value:"#00f5ff"}
+];
 
 function initAudio(){
     if(!audioCtx){
@@ -88,37 +115,35 @@ function initAudio(){
     }
 }
 
-// 💖 Tatlı "pling" sesi
-function playCuteSound(){
+function playNote(freq){
     if(!audioCtx) return;
 
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
-    osc.type = "sine"; // yumuşak ton
-    osc.frequency.setValueAtTime(880, audioCtx.currentTime); // yüksek tatlı frekans
-    osc.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.15);
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
 
     gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
 
     osc.connect(gain);
     gain.connect(audioCtx.destination);
 
     osc.start();
-    osc.stop(audioCtx.currentTime + 0.3);
-}
-
-function randomColor(){
-    return `hsl(${Math.random()*360}, 90%, 60%)`;
+    osc.stop(audioCtx.currentTime + 0.4);
 }
 
 function createHeart(){
     const heart = document.createElement("div");
     heart.className="heart";
-    heart.style.background=randomColor();
+
+    const colorObj = colors[Math.floor(Math.random()*colors.length)];
+    heart.style.background=colorObj.value;
+    heart.dataset.note = notes[colorObj.name];
+
     heart.style.left=Math.random()*(window.innerWidth-80)+"px";
-    heart.style.top=Math.random()*(window.innerHeight-150)+100+"px";
+    heart.style.top=Math.random()*(window.innerHeight-200)+120+"px";
 
     heart.addEventListener("click", ()=>{ initAudio(); explode(heart); });
     heart.addEventListener("touchstart", ()=>{ initAudio(); explode(heart); });
@@ -127,7 +152,8 @@ function createHeart(){
 }
 
 function explode(heart){
-    playCuteSound();
+    playNote(parseFloat(heart.dataset.note));
+    score++;
 
     const rect = heart.getBoundingClientRect();
     const centerX = rect.left + rect.width/2;
@@ -136,7 +162,7 @@ function explode(heart){
     for(let i=0;i<15;i++){
         const p=document.createElement("div");
         p.className="particle";
-        p.style.background=randomColor();
+        p.style.background=heart.style.background;
         p.style.left=centerX+"px";
         p.style.top=centerY+"px";
         area.appendChild(p);
@@ -160,6 +186,10 @@ function explode(heart){
 
     heart.remove();
     createHeart();
+
+    if(score >= 15){
+        finalMsg.style.opacity = 1;
+    }
 }
 
 for(let i=0;i<5;i++){
