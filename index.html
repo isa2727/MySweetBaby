@@ -37,17 +37,17 @@ body::before{
 
 h1{
     position:absolute;
-    top:20px;
-    font-size: clamp(18px, 5vw, 34px);
-    text-align:center;
-    width:90%;
+    top:30px;
+    font-size:34px;
+    background: linear-gradient(45deg,#ff2e63,#ff00c8,#00f5ff);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    text-shadow:0 0 20px rgba(255,0,100,0.6);
+    animation: glowTitle 3s infinite alternate;
 }
-
-.final-message{
-    width:85%;
-    font-size: clamp(16px, 4.5vw, 26px);
-    left:50%;
-    transform:translateX(-50%);
+@keyframes glowTitle{
+    from{filter:brightness(1)}
+    to{filter:brightness(1.4)}
 }
 
 .score{
@@ -101,6 +101,21 @@ h1{
     pointer-events:none;
 }
 
+/* Cam efektli final mesaj */
+.final-message{
+    position:absolute;
+    bottom:60px;
+    padding:20px 40px;
+    font-size:26px;
+    border-radius:20px;
+    backdrop-filter:blur(15px);
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.2);
+    opacity:0;
+    transition:all 1.5s;
+    text-align:center;
+    box-shadow:0 0 30px rgba(255,0,120,0.4);
+}
 .confetti{
     position:absolute;
     width:6px;
@@ -127,7 +142,7 @@ const scoreText = document.getElementById("score");
 
 let audioCtx;
 let score = 0;
-let gameFinished = false;
+
 const notes = {
     red: 523.25,
     pink: 659.25,
@@ -176,34 +191,23 @@ function createHeart(){
     heart.style.color=colorObj.value;
     heart.dataset.note = notes[colorObj.name];
 
-    const safeWidth = window.innerWidth - 80;
-    const safeHeight = window.innerHeight - 200;
-
-    heart.style.left = Math.max(10, Math.random() * safeWidth) + "px";
-    heart.style.top  = Math.max(120, Math.random() * safeHeight) + "px";
+    heart.style.left=Math.random()*(window.innerWidth-80)+"px";
+    heart.style.top=Math.random()*(window.innerHeight-200)+120+"px";
 
     heart.addEventListener("click", ()=>{ initAudio(); explode(heart); });
-    heart.addEventListener("touchstart", (e)=>{
-        e.preventDefault();
-        initAudio();
-        explode(heart);
-    });
+    heart.addEventListener("touchstart", ()=>{ initAudio(); explode(heart); });
 
     area.appendChild(heart);
 }
 
 function explode(heart){
-
-    if(gameFinished) return;
-
     playNote(parseFloat(heart.dataset.note));
     score++;
-
     const rect = heart.getBoundingClientRect();
     const centerX = rect.left + rect.width/2;
     const centerY = rect.top + rect.height/2;
 
-    for(let i=0;i<15;i++){ // 20 yerine 15 yaptık performans için
+    for(let i=0;i<20;i++){
         const p=document.createElement("div");
         p.className="particle";
         p.style.background=heart.style.background;
@@ -212,7 +216,7 @@ function explode(heart){
         area.appendChild(p);
 
         const angle=Math.random()*2*Math.PI;
-        const distance=60+Math.random()*40;
+        const distance=80+Math.random()*50;
 
         const x=Math.cos(angle)*distance;
         const y=Math.sin(angle)*distance;
@@ -221,30 +225,28 @@ function explode(heart){
             { transform:"translate(0,0)", opacity:1 },
             { transform:`translate(${x}px,${y}px)`, opacity:0 }
         ],{
-            duration:600,
+            duration:700,
             easing:"ease-out"
         });
 
-        setTimeout(()=>p.remove(),600);
+        setTimeout(()=>p.remove(),700);
     }
 
     heart.remove();
+    createHeart();
 
     if(score >= 10){
-        gameFinished = true;
         showFinal();
-        return;
     }
-
-    createHeart();
 }
+
 function showFinal(){
     finalMsg.style.opacity = 1;
     createConfetti();
 }
 
 function createConfetti(){
-    for(let i=0;i<30;i++){
+    for(let i=0;i<20;i++){
         const c=document.createElement("div");
         c.className="confetti";
         c.style.left=Math.random()*window.innerWidth+"px";
