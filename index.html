@@ -6,25 +6,55 @@
 <title>❤️ Kübra ❤️</title>
 
 <style>
+*{box-sizing:border-box}
+
 body{
     margin:0;
     height:100vh;
     display:flex;
-    flex-direction:column;
     justify-content:center;
     align-items:center;
-    background: radial-gradient(circle at center, #1a1a2e, #0f0c29);
-    font-family: Arial, sans-serif;
+    background: radial-gradient(circle at center, #0f0c29, #1a1a2e, #000);
+    font-family: 'Segoe UI', sans-serif;
     overflow:hidden;
-    touch-action: manipulation;
+    color:white;
+}
+
+/* Yıldızlı arka plan */
+body::before{
+    content:"";
+    position:absolute;
+    width:200%;
+    height:200%;
+    background:url("https://www.transparenttextures.com/patterns/stardust.png");
+    animation: stars 60s linear infinite;
+    opacity:0.3;
+}
+@keyframes stars{
+    from{transform:translate(0,0)}
+    to{transform:translate(-500px,-500px)}
 }
 
 h1{
     position:absolute;
-    top:40px;
-    font-size:30px;
-    color:#ff2e63;
-    text-shadow:0 0 10px #ff2e63,0 0 20px #ff2e63;
+    top:30px;
+    font-size:34px;
+    background: linear-gradient(45deg,#ff2e63,#ff00c8,#00f5ff);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    text-shadow:0 0 20px rgba(255,0,100,0.6);
+    animation: glowTitle 3s infinite alternate;
+}
+@keyframes glowTitle{
+    from{filter:brightness(1)}
+    to{filter:brightness(1.4)}
+}
+
+.score{
+    position:absolute;
+    top:90px;
+    font-size:18px;
+    opacity:0.8;
 }
 
 .area{
@@ -33,6 +63,7 @@ h1{
     height:100%;
 }
 
+/* Neon Kalp */
 .heart{
     position:absolute;
     width:70px;
@@ -40,6 +71,8 @@ h1{
     transform: rotate(-45deg);
     cursor:pointer;
     animation: pulse 1.4s infinite ease-in-out;
+    filter: drop-shadow(0 0 10px currentColor)
+            drop-shadow(0 0 20px currentColor);
 }
 
 .heart::before,
@@ -68,39 +101,53 @@ h1{
     pointer-events:none;
 }
 
+/* Cam efektli final mesaj */
 .final-message{
     position:absolute;
     bottom:60px;
-    font-size:24px;
-    color:white;
-    text-align:center;
+    padding:20px 40px;
+    font-size:26px;
+    border-radius:20px;
+    backdrop-filter:blur(15px);
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.2);
     opacity:0;
-    transition:opacity 1s;
-    text-shadow:0 0 10px #fff,0 0 20px #ff2e63;
+    transition:all 1.5s;
+    text-align:center;
+    box-shadow:0 0 30px rgba(255,0,120,0.4);
+}
+.confetti{
+    position:absolute;
+    width:6px;
+    height:12px;
+    pointer-events:none;
 }
 </style>
 </head>
 
 <body>
 
-<h1> ❤️Seni Gerçekten Seviyorum❤️</h1>
+<h1>❤️ Seni Gerçekten Seviyorum ❤️</h1>
 
 <div class="area" id="area"></div>
+
 <div class="final-message" id="finalMsg">
- ❤️ Kalbimdesin ❤️
+    ❤️ Sonsuza Kadar Sen ❤️
 </div>
 
 <script>
 const area = document.getElementById("area");
 const finalMsg = document.getElementById("finalMsg");
+const scoreText = document.getElementById("score");
+
 let audioCtx;
 let score = 0;
 
 const notes = {
-    red: 523.25,     // C
-    pink: 659.25,    // E
-    purple: 783.99,  // G
-    blue: 880        // A
+    red: 523.25,
+    pink: 659.25,
+    purple: 783.99,
+    blue: 880
 };
 
 const colors = [
@@ -141,6 +188,7 @@ function createHeart(){
 
     const colorObj = colors[Math.floor(Math.random()*colors.length)];
     heart.style.background=colorObj.value;
+    heart.style.color=colorObj.value;
     heart.dataset.note = notes[colorObj.name];
 
     heart.style.left=Math.random()*(window.innerWidth-80)+"px";
@@ -154,13 +202,12 @@ function createHeart(){
 
 function explode(heart){
     playNote(parseFloat(heart.dataset.note));
-    score++;
 
     const rect = heart.getBoundingClientRect();
     const centerX = rect.left + rect.width/2;
     const centerY = rect.top + rect.height/2;
 
-    for(let i=0;i<15;i++){
+    for(let i=0;i<20;i++){
         const p=document.createElement("div");
         p.className="particle";
         p.style.background=heart.style.background;
@@ -169,7 +216,7 @@ function explode(heart){
         area.appendChild(p);
 
         const angle=Math.random()*2*Math.PI;
-        const distance=60+Math.random()*40;
+        const distance=80+Math.random()*50;
 
         const x=Math.cos(angle)*distance;
         const y=Math.sin(angle)*distance;
@@ -178,22 +225,50 @@ function explode(heart){
             { transform:"translate(0,0)", opacity:1 },
             { transform:`translate(${x}px,${y}px)`, opacity:0 }
         ],{
-            duration:600,
+            duration:700,
             easing:"ease-out"
         });
 
-        setTimeout(()=>p.remove(),600);
+        setTimeout(()=>p.remove(),700);
     }
 
     heart.remove();
     createHeart();
 
-    if(score >= 15){
-        finalMsg.style.opacity = 1;
+    if(score >= 20){
+        showFinal();
     }
 }
 
-for(let i=0;i<5;i++){
+function showFinal(){
+    finalMsg.style.opacity = 1;
+    createConfetti();
+}
+
+function createConfetti(){
+    for(let i=0;i<100;i++){
+        const c=document.createElement("div");
+        c.className="confetti";
+        c.style.left=Math.random()*window.innerWidth+"px";
+        c.style.top="-20px";
+        c.style.background=colors[Math.floor(Math.random()*colors.length)].value;
+        document.body.appendChild(c);
+
+        const fall=Math.random()*window.innerHeight+200;
+
+        c.animate([
+            {transform:"translateY(0) rotate(0deg)"},
+            {transform:`translateY(${fall}px) rotate(720deg)`}
+        ],{
+            duration:3000+Math.random()*2000,
+            easing:"linear"
+        });
+
+        setTimeout(()=>c.remove(),5000);
+    }
+}
+
+for(let i=0;i<6;i++){
     createHeart();
 }
 </script>
